@@ -4,28 +4,36 @@ import ru.javawebinar.topjava.model.Meal;
 
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RamMealsDAO implements MealsDAO{
-    private List<Meal> meals = Arrays.asList(
-            new Meal(LocalDateTime.of(2015, Month.MAY, 30, 10, 0), "Завтрак", 500),
-            new Meal(LocalDateTime.of(2015, Month.MAY, 30, 13, 0), "Обед", 1000),
-            new Meal(LocalDateTime.of(2015, Month.MAY, 30, 20, 0), "Ужин", 500),
-            new Meal(LocalDateTime.of(2015, Month.MAY, 31, 10, 0), "Завтрак", 1000),
-            new Meal(LocalDateTime.of(2015, Month.MAY, 31, 13, 0), "Обед", 500),
-            new Meal(LocalDateTime.of(2015, Month.MAY, 31, 20, 0), "Ужин", 510));
+    private Map<Integer, Meal> meals;
+
+    private AtomicInteger id = new AtomicInteger(-1);
+
+    {
+        meals = Collections.synchronizedMap(new HashMap<>());
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 10, 0), "Завтрак", 500));
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 13, 0), "Обед", 1000));
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 20, 0), "Ужин", 500));
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 10, 0), "Завтрак", 1000));
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 13, 0), "Обед", 500));
+        save(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 20, 0), "Ужин", 510));
+
+
+    }
 
     @Override
     public List<Meal> findAll() {
-        return meals;
+        return new ArrayList<>(meals.values());
     }
 
     @Override
     public Meal save(Meal meal) {
-        meal.setId(meals.size());
-        meals.add(meal);
-        return meal;
+        int id = this.id.incrementAndGet();
+        meal.setId(id);
+        return meals.put(id, meal);
     }
 
     @Override
@@ -34,12 +42,16 @@ public class RamMealsDAO implements MealsDAO{
             throw new IllegalArgumentException();
         }
         meal.setId(id);
-        meals.set(id, meal);
-        return null;
+        return meals.put(id, meal);
     }
 
     @Override
     public void delete(Meal meal) {
-        meals.remove(meal);
+        meals.remove(meal.getId());
+    }
+
+    @Override
+    public Meal getById(int id) {
+        return meals.get(id);
     }
 }
