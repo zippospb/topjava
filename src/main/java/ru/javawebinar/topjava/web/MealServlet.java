@@ -20,7 +20,12 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
-    private final MealsDAO dao = new RamMealsDAO();
+    private MealsDAO dao;
+
+    @Override
+    public void init() {
+        dao = new RamMealsDAO();
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -28,39 +33,33 @@ public class MealServlet extends HttpServlet {
 
         List<MealWithExceed> meals = MealsUtil.getFilteredWithExceeded(dao.findAll() ,LocalTime.MIN, LocalTime.MAX, 2000);
         req.setAttribute("meals", meals);
-        req.getRequestDispatcher("meals.jsp").forward(req, resp);
+        req.getRequestDispatcher("/meals.jsp").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
-        int id;
-        switch (req.getParameter("method")){
-            case "update":
-                id = Integer.parseInt(req.getParameter("id"));
-                update(req, resp, id);
-                break;
-            case "delete":
-                id = Integer.parseInt(req.getParameter("id"));
-                delete(req, resp, id);
-                break;
-            case "create":
-                create(req, resp);
-                break;
-            case "save":
-                save(req, resp);
-                break;
+
+        String method = req.getParameter("method");
+        if("save".equals(method)){
+            save(req, resp);
+            return;
+        }
+
+        int id = Integer.parseInt(req.getParameter("id"));
+        if("update".equals(method)){
+            update(req, resp, id);
+        } else if("delete".equals(method)){
+            delete(req, resp, id);
         }
     }
 
     private void delete(HttpServletRequest req, HttpServletResponse resp, int id) throws IOException {
+        log.debug("delete meal with id " + id);
+
         Meal meal = dao.getById(id);
         dao.delete(meal);
         resp.sendRedirect("meals");
-    }
-
-    private void create(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher("mealEdit.jsp").forward(req, resp);
     }
 
     private void save(HttpServletRequest req, HttpServletResponse resp) throws IOException{
@@ -71,9 +70,13 @@ public class MealServlet extends HttpServlet {
 
         Meal meal = new Meal(dateTime, description, calories);
 
-        if(id == null || id.isEmpty()){
+        if(id.isEmpty()){
+            log.debug("save new meal " + meal);
+
             dao.save(meal);
         } else {
+            log.debug("update meal " + meal);
+
             dao.update(meal, Integer.parseInt(id));
         }
         resp.sendRedirect("meals");
@@ -82,8 +85,6 @@ public class MealServlet extends HttpServlet {
     private void update(HttpServletRequest req, HttpServletResponse resp, int id) throws ServletException, IOException {
         Meal meal = dao.getById(id);
         req.setAttribute("meal", meal);
-        req.getRequestDispatcher("mealEdit.jsp").forward(req, resp);
+        req.getRequestDispatcher("/mealEdit.jsp").forward(req, resp);
     }
-
-
 }

@@ -5,23 +5,21 @@ import ru.javawebinar.topjava.model.Meal;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class RamMealsDAO implements MealsDAO{
-    private Map<Integer, Meal> meals;
+    private Map<Integer, Meal> meals = new ConcurrentHashMap<>();
 
     private AtomicInteger id = new AtomicInteger(-1);
 
     {
-        meals = Collections.synchronizedMap(new HashMap<>());
         save(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 10, 0), "Завтрак", 500));
         save(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 13, 0), "Обед", 1000));
         save(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 20, 0), "Ужин", 500));
         save(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 10, 0), "Завтрак", 1000));
         save(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 13, 0), "Обед", 500));
         save(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 20, 0), "Ужин", 510));
-
-
     }
 
     @Override
@@ -31,16 +29,12 @@ public class RamMealsDAO implements MealsDAO{
 
     @Override
     public Meal save(Meal meal) {
-        int id = this.id.incrementAndGet();
-        meal.setId(id);
-        return meals.put(id, meal);
+        meal.setId(id.incrementAndGet());
+        return meals.put(meal.getId(), meal);
     }
 
     @Override
     public Meal update(Meal meal, int id) {
-        if(id < 0 || id >= meals.size()){
-            throw new IllegalArgumentException();
-        }
         meal.setId(id);
         return meals.put(id, meal);
     }

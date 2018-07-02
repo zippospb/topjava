@@ -9,16 +9,13 @@
 <body>
     <h3><a href="index.html">Home</a></h3>
     <h2>Meals</h2>
-    <form method="post" style="width: 100%">
-        <input type="hidden" name="method" value="create">
-        <button >
-            <svg width="24" height="24" viewBox="0 0 32 32" style="margin-left: calc(50% - 0.7em); visibility: visible">
-                <g transform="scale(0.03125 0.03125)">
-                    <path d="M992 384h-352v-352c0-17.672-14.328-32-32-32h-192c-17.672 0-32 14.328-32 32v352h-352c-17.672 0-32 14.328-32 32v192c0 17.672 14.328 32 32 32h352v352c0 17.672 14.328 32 32 32h192c17.672 0 32-14.328 32-32v-352h352c17.672 0 32-14.328 32-32v-192c0-17.672-14.328-32-32-32z"></path>
-                </g>
-            </svg>
-        </button>
-    </form>
+    <svg width="24" height="24" viewBox="0 0 32 32" style="margin-left: calc(50% - 0.7em); visibility: visible">
+        <a href="mealEdit.jsp">
+            <g transform="scale(0.03125 0.03125)">
+                <path d="M992 384h-352v-352c0-17.672-14.328-32-32-32h-192c-17.672 0-32 14.328-32 32v352h-352c-17.672 0-32 14.328-32 32v192c0 17.672 14.328 32 32 32h352v352c0 17.672 14.328 32 32 32h192c17.672 0 32-14.328 32-32v-352h352c17.672 0 32-14.328 32-32v-192c0-17.672-14.328-32-32-32z"></path>
+            </g>
+        </a>
+    </svg>
     <%--@elvariable id="meals" type="java.util.List"--%>
     <%--@elvariable id="meal" type="ru.javawebinar.topjava.model.MealWithExceed"--%>
     <c:set var="meals" value="${requestScope.meals}" />
@@ -32,7 +29,7 @@
         </tr>
         <c:forEach items="${meals}" var="meal">
             <tr bgcolor="${meal.exceed ? '#ff7f50' : '#9acd32'}">
-                <td ><javatime:format value="${meal.dateTime}" pattern="yyyy-MM-dd 10:00"/></td>
+                <td ><javatime:format value="${meal.dateTime}" pattern="yyyy-MM-dd HH:mm"/></td>
                 <td><c:out value="${meal.description}"/></td>
                 <td><c:out value="${meal.calories}"/></td>
                 <td>
