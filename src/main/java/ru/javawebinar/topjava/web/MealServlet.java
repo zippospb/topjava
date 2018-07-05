@@ -2,7 +2,7 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.DAO.MealsDAO;
-import ru.javawebinar.topjava.DAO.RamMealsDAO;
+import ru.javawebinar.topjava.DAO.InMemoryMealsDAO;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealWithExceed;
 import ru.javawebinar.topjava.util.MealsUtil;
@@ -24,7 +24,7 @@ public class MealServlet extends HttpServlet {
 
     @Override
     public void init() {
-        dao = new RamMealsDAO();
+        dao = new InMemoryMealsDAO();
     }
 
     @Override
@@ -40,29 +40,30 @@ public class MealServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
 
-        String method = req.getParameter("method");
-        if("save".equals(method)){
-            save(req, resp);
-            return;
+        switch (req.getParameter("method")){
+            case "update":
+                update(req, resp, Integer.parseInt(req.getParameter("id")));
+                return;
+            case "save":
+                save(req);
+                break;
+            case "delete":
+                delete(Integer.parseInt(req.getParameter("id")));
+                break;
+            default:
+                log.error("Illegal argument \"method\"");
         }
 
-        int id = Integer.parseInt(req.getParameter("id"));
-        if("update".equals(method)){
-            update(req, resp, id);
-        } else if("delete".equals(method)){
-            delete(req, resp, id);
-        }
-    }
-
-    private void delete(HttpServletRequest req, HttpServletResponse resp, int id) throws IOException {
-        log.debug("delete meal with id " + id);
-
-        Meal meal = dao.getById(id);
-        dao.delete(meal);
         resp.sendRedirect("meals");
     }
 
-    private void save(HttpServletRequest req, HttpServletResponse resp) throws IOException{
+    private void delete(int id) {
+        log.debug("delete meal with id " + id);
+
+        dao.delete(id);
+    }
+
+    private void save(HttpServletRequest req) {
         LocalDateTime dateTime = LocalDateTime.parse(req.getParameter("dateTime"));
         String description = req.getParameter("description");
         int calories = Integer.parseInt(req.getParameter("calories"));
@@ -79,10 +80,11 @@ public class MealServlet extends HttpServlet {
 
             dao.update(meal, Integer.parseInt(id));
         }
-        resp.sendRedirect("meals");
     }
 
     private void update(HttpServletRequest req, HttpServletResponse resp, int id) throws ServletException, IOException {
+        log.debug("forward to mealEdit");
+
         Meal meal = dao.getById(id);
         req.setAttribute("meal", meal);
         req.getRequestDispatcher("/mealEdit.jsp").forward(req, resp);

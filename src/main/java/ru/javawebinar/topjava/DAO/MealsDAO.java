@@ -8,6 +8,6 @@ public interface MealsDAO {
     List<Meal> findAll();
     Meal save(Meal meal);
     Meal update(Meal meal, int id);
-    void delete(Meal meal);
+    void delete(int id);
     Meal getById(int id);
 }

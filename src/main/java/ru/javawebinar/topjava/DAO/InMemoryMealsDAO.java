@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class RamMealsDAO implements MealsDAO{
+public class InMemoryMealsDAO implements MealsDAO{
     private Map<Integer, Meal> meals = new ConcurrentHashMap<>();
 
     private AtomicInteger id = new AtomicInteger(-1);
@@ -40,8 +40,8 @@ public class RamMealsDAO implements MealsDAO{
     }
 
     @Override
-    public void delete(Meal meal) {
-        meals.remove(meal.getId());
+    public void delete(int id) {
+        meals.remove(id);
     }
 
     @Override
