@@ -7,7 +7,17 @@
 <h3>Проект <a href="https://github.com/JavaWebinar/topjava" target="_blank">Java Enterprise (Topjava)</a></h3>
 <hr>
 <ul>
-    <li><a href="users">Users</a></li>
+    <li>
+        <form method="post" action="users">
+            <p><label>Users</label></p>
+            <select name="userId" title="Выбор пользователя" size="2" required>
+                <option value="1">zippospb</option>
+                <option value="2">genua</option>
+            </select>
+            <p><input type="submit" value="Выбрать"></p>
+        </form>
+        <p><a href="users">Show Users</a></p>
+    </li>
     <li><a href="meals">Meals</a></li>
 </ul>
 </body>
