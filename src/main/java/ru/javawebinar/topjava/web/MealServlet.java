@@ -14,9 +14,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
@@ -67,8 +65,8 @@ public class MealServlet extends HttpServlet {
                 break;
             case "create":
             case "update":
-                final Meal meal = "create".equals(action) ?
-                        new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
+                final MealWithExceed meal = "create".equals(action) ?
+                        new MealWithExceed(null, LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000, true) :
                         controller.get(getId(request));
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
@@ -76,7 +74,6 @@ public class MealServlet extends HttpServlet {
             case "all":
             default:
                 log.info("getAll");
-
                 request.setAttribute("meals", getAll(request));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
@@ -94,18 +91,14 @@ public class MealServlet extends HttpServlet {
         String fromTime = request.getParameter("fromTime");
         String toTime = request.getParameter("toTime");
 
-        return controller.getAll(isAbsent(fromDate) ? LocalDate.MIN : LocalDate.parse(fromDate),
-                isAbsent(toDate) ? LocalDate.MAX : LocalDate.parse(toDate),
-                isAbsent(fromTime) ? LocalTime.MIN : LocalTime.parse(fromTime),
-                isAbsent(toTime) ? LocalTime.MAX : LocalTime.parse(toTime));
+        if(fromDate == null && toDate == null && fromTime == null && toTime == null){
+            return controller.getAll();
+        }
+        return controller.getAllByDateTime(fromDate, toDate, fromTime, toTime);
     }
 
     @Override
     public void destroy() {
         appCtx.close();
-    }
-
-    private boolean isAbsent(String parameter){
-        return parameter == null || parameter.isEmpty();
     }
 }

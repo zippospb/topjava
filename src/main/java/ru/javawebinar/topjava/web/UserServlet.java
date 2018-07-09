@@ -23,6 +23,6 @@ public class UserServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         int userId = Integer.parseInt(req.getParameter("userId"));
         SecurityUtil.setAuthUserId(userId);
-        resp.sendRedirect(req.getContextPath());
+        resp.sendRedirect("meals");
     }
 }
