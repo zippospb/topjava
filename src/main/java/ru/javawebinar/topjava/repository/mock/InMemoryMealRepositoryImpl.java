@@ -22,6 +22,8 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     private static final Logger log = LoggerFactory.getLogger(InMemoryUserRepositoryImpl.class);
     private Map<Integer, Map<Integer, Meal>> repository = new ConcurrentHashMap<>();
 
+    private Comparator<Meal> sorter = Comparator.comparing(Meal::getDate, Comparator.reverseOrder());
+
     private AtomicInteger counter = new AtomicInteger(0);
 
     {
@@ -44,10 +46,10 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     }
 
     @Override
-    public Meal delete(int userId, int id) {
+    public boolean delete(int userId, int id) {
         log.info("delete meal {}", id);
         Map<Integer, Meal> meals = getAllByUser(userId);
-        return meals.remove(id);
+        return meals.remove(id) != null;
     }
 
     @Override
@@ -61,7 +63,7 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
         log.info("getAllMealsByDate");
         return getAllByUser(userId).values().stream()
                 .filter(meal -> DateTimeUtil.isBetween(meal.getDate(), fromDate, toDate))
-                .sorted(Comparator.comparing(Meal::getDate, Comparator.reverseOrder()))
+                .sorted(sorter)
                 .collect(Collectors.toList());
     }
 
@@ -72,7 +74,7 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     @Override
     public List<Meal> getAll(int userId) {
         List<Meal> meals = new ArrayList<>(getAllByUser(userId).values());
-        meals.sort(Comparator.comparing(Meal::getDate, Comparator.reverseOrder()));
+        meals.sort(sorter);
         return meals;
     }
 }

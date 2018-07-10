@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealWithExceed;
+import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.SecurityUtil;
 
@@ -33,20 +34,20 @@ public class MealRestController {
                 SecurityUtil.authUserCaloriesPerDay());
     }
 
-    public List<MealWithExceed> getAllByDateTime(String fromDate, String toDate,
-                                                 String fromTime, String toTime){
+    public List<MealWithExceed> getAllByDateTime(LocalDate fromDate, LocalDate toDate,
+                                                 LocalTime fromTime, LocalTime toTime){
         log.info("getAll with filter");
         List<Meal> meals = service.getAllByDate(SecurityUtil.authUserId(),
-                isAbsent(fromDate) ? LocalDate.MIN : LocalDate.parse(fromDate),
-                isAbsent(toDate) ? LocalDate.MAX : LocalDate.parse(toDate));
+                DateTimeUtil.getOrDefault(fromDate, LocalDate.MIN),
+                DateTimeUtil.getOrDefault(toDate, LocalDate.MAX));
         return MealsUtil.getFilteredWithExceeded(meals, MealsUtil.DEFAULT_CALORIES_PER_DAY,
-                isAbsent(fromTime) ? LocalTime.MIN : LocalTime.parse(fromTime),
-                isAbsent(toTime) ? LocalTime.MAX : LocalTime.parse(toTime));
+                DateTimeUtil.getOrDefault(fromTime, LocalTime.MIN),
+                DateTimeUtil.getOrDefault(toTime, LocalTime.MAX));
     }
 
-    public MealWithExceed get(int id){
+    public Meal get(int id){
         log.info("get {}", id);
-        return MealsUtil.createWithExceed(service.get(SecurityUtil.authUserId(), id), true);
+        return service.get(SecurityUtil.authUserId(), id);
     }
 
     public void create(Meal meal){

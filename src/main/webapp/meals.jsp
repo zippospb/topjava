@@ -21,6 +21,7 @@
     <h3><a href="index.html">Home</a></h3>
     <h2>Meals</h2>
     <form method="get">
+        <input type="hidden" name="action" value="filter">
         <table>
             <tr>
                 <td colspan="2"><h4>Фильтрация по дате/времени</h4></td>

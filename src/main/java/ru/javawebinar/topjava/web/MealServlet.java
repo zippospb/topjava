@@ -14,7 +14,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
@@ -65,16 +67,21 @@ public class MealServlet extends HttpServlet {
                 break;
             case "create":
             case "update":
-                final MealWithExceed meal = "create".equals(action) ?
-                        new MealWithExceed(null, LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000, true) :
+                final Meal meal = "create".equals(action) ?
+                        new Meal(null, LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
                         controller.get(getId(request));
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
                 break;
+            case "filter":
             case "all":
             default:
                 log.info("getAll");
-                request.setAttribute("meals", getAll(request));
+                List<MealWithExceed> meals = "filter".equals(action) ? controller.getAllByDateTime(
+                                getDate(request, "fromDate"), getDate(request, "toDate"),
+                                getTime(request, "fromTime"), getTime(request,"toTime")) :
+                        controller.getAll();
+                request.setAttribute("meals", meals);
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
         }
@@ -85,20 +92,19 @@ public class MealServlet extends HttpServlet {
         return Integer.parseInt(paramId);
     }
 
-    private List<MealWithExceed> getAll(HttpServletRequest request){
-        String fromDate = request.getParameter("fromDate");
-        String toDate = request.getParameter("toDate");
-        String fromTime = request.getParameter("fromTime");
-        String toTime = request.getParameter("toTime");
+    private LocalDate getDate(HttpServletRequest request, String param){
+        String date = request.getParameter(param);
+        return date != null && !date.isEmpty() ? LocalDate.parse(date) : null;
+    }
 
-        if(fromDate == null && toDate == null && fromTime == null && toTime == null){
-            return controller.getAll();
-        }
-        return controller.getAllByDateTime(fromDate, toDate, fromTime, toTime);
+    private LocalTime getTime(HttpServletRequest request, String param){
+        String time = request.getParameter(param);
+        return time != null && !time.isEmpty() ? LocalTime.parse(time) : null;
     }
 
     @Override
     public void destroy() {
+        super.destroy();
         appCtx.close();
     }
 }
