@@ -10,10 +10,6 @@ public class DateTimeUtil {
         return current.compareTo(start) >= 0 && current.compareTo(end) <= 0;
     }
 
-    public static <T> T getOrDefault(T current, T def){
-        return current == null ? def : current;
-    }
-
     public static String toString(LocalDateTime ldt) {
         return ldt == null ? "" : ldt.format(DATE_TIME_FORMATTER);
     }

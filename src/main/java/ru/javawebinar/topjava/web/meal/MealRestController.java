@@ -14,6 +14,7 @@ import ru.javawebinar.topjava.web.SecurityUtil;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
@@ -38,11 +39,11 @@ public class MealRestController {
                                                  LocalTime fromTime, LocalTime toTime){
         log.info("getAll with filter");
         List<Meal> meals = service.getAllByDate(SecurityUtil.authUserId(),
-                DateTimeUtil.getOrDefault(fromDate, LocalDate.MIN),
-                DateTimeUtil.getOrDefault(toDate, LocalDate.MAX));
+                Optional.ofNullable(fromDate).orElse(LocalDate.MIN),
+                Optional.ofNullable(toDate).orElse(LocalDate.MAX));
         return MealsUtil.getFilteredWithExceeded(meals, MealsUtil.DEFAULT_CALORIES_PER_DAY,
-                DateTimeUtil.getOrDefault(fromTime, LocalTime.MIN),
-                DateTimeUtil.getOrDefault(toTime, LocalTime.MAX));
+                Optional.ofNullable(fromTime).orElse(LocalTime.MIN),
+                Optional.ofNullable(toTime).orElse(LocalTime.MAX));
     }
 
     public Meal get(int id){
