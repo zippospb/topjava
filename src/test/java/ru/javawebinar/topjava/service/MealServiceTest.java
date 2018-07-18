@@ -126,11 +126,11 @@ public class MealServiceTest {
 
     @Test(expected = Exception.class)
     public void createNonUniqueIndex(){
-        service.create(NOT_UNIQUE_DATE_MEAL, USER_ID);
+        service.create(new Meal(NOT_UNIQUE_DATE_MEAL), USER_ID);
     }
 
     @Test
     public void createNonUniqueDateButUniqueIndex() {
-        service.create(NOT_UNIQUE_DATE_MEAL, ADMIN_ID);
+        service.create(new Meal(NOT_UNIQUE_DATE_MEAL), ADMIN_ID);
     }
 }
