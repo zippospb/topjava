@@ -3,6 +3,9 @@ package ru.javawebinar.topjava.model;
 import org.hibernate.validator.constraints.Range;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -20,9 +23,12 @@ public class Meal extends AbstractBaseEntity {
     public static final String All_BETWEEN = "Meal.AllBetween;";
 
     @Column(name = "date_time", nullable = false)
+    @NotNull
     private LocalDateTime dateTime;
 
     @Column(name = "description", nullable = false)
+    @NotBlank
+    @Size(min = 1, max = 100)
     private String description;
 
     @Column(name = "calories", nullable = false)
@@ -30,6 +36,7 @@ public class Meal extends AbstractBaseEntity {
     private int calories;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
     private User user;
 
     public Meal() {
