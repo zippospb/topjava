@@ -1,6 +1,7 @@
 package ru.javawebinar.topjava.service;
 
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.Stopwatch;
@@ -50,17 +51,19 @@ public abstract class AbstractServiceTest {
         SLF4JBridgeHandler.install();
     }
 
-    static void addTitleToLog(String className){
-        results.append("\n----------------------------------------------------" + "\n")
-                .append(className)
-                .append("                 Duration, ms")
-                .append("\n----------------------------------------------------");
+    @BeforeClass
+    public static void addTitleToLog(){
+        log.info("\n---------------------------------" +
+                "\nTest                 Duration, ms" +
+                "\n---------------------------------" +
+                results +
+                "\n---------------------------------");
     }
 
     @AfterClass
     public static void printResult() {
         log.info(results +
-                "\n----------------------------------------------------");
+                "\n---------------------------------");
         results.delete(0, results.length());
     }
 }

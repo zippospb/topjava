@@ -13,9 +13,8 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public interface CrudMealRepository extends JpaRepository<Meal, Integer> {
 
-    @Transactional
     @Override
-    <T extends Meal> T save(T meal);
+    Meal save(Meal meal);
 
     @Transactional
     @Modifying
@@ -30,4 +29,7 @@ public interface CrudMealRepository extends JpaRepository<Meal, Integer> {
 
     @Query("SELECT m FROM Meal m WHERE m.user.id=?1 AND m.dateTime BETWEEN ?2 AND ?3 ORDER BY m.dateTime DESC")
     List<Meal> findAllBetween (int userId, LocalDateTime startDate, LocalDateTime endDate);
+
+    @Query("SELECT m FROM Meal m JOIN FETCH m.user WHERE m.id=?1 AND m.user.id=?2")
+    Meal getWithUser(int id, int userId);
 }

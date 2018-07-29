@@ -1,21 +1,19 @@
-package ru.javawebinar.topjava.service;
+package ru.javawebinar.topjava.service.datajpa;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.test.context.ActiveProfiles;
 import ru.javawebinar.topjava.MealTestData;
 import ru.javawebinar.topjava.UserTestData;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.service.AbstractMealServiceTest;
 
-import static ru.javawebinar.topjava.MealTestData.*;
-import static ru.javawebinar.topjava.UserTestData.*;
+import static ru.javawebinar.topjava.MealTestData.MEAL1;
+import static ru.javawebinar.topjava.MealTestData.MEAL1_ID;
+import static ru.javawebinar.topjava.UserTestData.USER;
+import static ru.javawebinar.topjava.UserTestData.USER_ID;
 
 @ActiveProfiles(profiles = {"datajpa"})
-public class DataJpaMealServiceTest extends AbstractMealServiceTest{
-    @BeforeClass
-    public static void addTitleToLog(){
-        AbstractMealServiceTest.addTitleToLog(DataJpaMealServiceTest.class.getSimpleName());
-    }
+public class DataJpaMealServiceTest extends AbstractMealServiceTest {
 
     @Test
     public void getWithUser(){
