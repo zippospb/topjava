@@ -40,7 +40,7 @@ public abstract class AbstractServiceTest {
     public Stopwatch stopwatch = new Stopwatch() {
         @Override
         protected void finished(long nanos, Description description) {
-            String result = String.format("\n%-40s %7d", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
+            String result = String.format("\n%-25s %7d", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
             results.append(result);
             log.info(result + " ms\n");
         }
@@ -51,18 +51,12 @@ public abstract class AbstractServiceTest {
         SLF4JBridgeHandler.install();
     }
 
-    @BeforeClass
-    public static void addTitleToLog(){
+    @AfterClass
+    public static void printResult() {
         log.info("\n---------------------------------" +
                 "\nTest                 Duration, ms" +
                 "\n---------------------------------" +
                 results +
-                "\n---------------------------------");
-    }
-
-    @AfterClass
-    public static void printResult() {
-        log.info(results +
                 "\n---------------------------------");
         results.delete(0, results.length());
     }
