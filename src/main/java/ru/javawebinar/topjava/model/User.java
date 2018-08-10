@@ -4,6 +4,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.validator.constraints.Range;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.util.CollectionUtils;
 
 import javax.persistence.*;
@@ -47,6 +48,7 @@ public class User extends AbstractNamedEntity {
     private boolean enabled = true;
 
     @Column(name = "registered", columnDefinition = "timestamp default now()")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     @NotNull
     private Date registered = new Date();
 

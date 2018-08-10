@@ -1,7 +1,6 @@
 package ru.javawebinar.topjava.repository.jdbc;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -17,12 +16,9 @@ import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
 @Transactional(readOnly = true)
@@ -36,31 +32,24 @@ public class JdbcUserRepositoryImpl implements UserRepository {
 
     private final SimpleJdbcInsert insertUser;
 
-    private final ResultSetExtractor<List<User>> RSE = new ResultSetExtractor<List<User>>() {
-        @Override
-        public List<User> extractData(ResultSet rs) throws SQLException, DataAccessException {
-            List<User> result = new ArrayList<>();
-            int userIndex = 0;
-            User currentUser = null;
-            Set<Role> roles = null;
-            while(rs.next()){
-                if(currentUser == null || currentUser.getId() != rs.getInt("id")){
-                    setRoles(currentUser, roles);
-                    currentUser = ROW_MAPPER.mapRow(rs, userIndex++);
-                    result.add(currentUser);
-                    roles = new HashSet<>();
+    private final ResultSetExtractor<List<User>> userExtractor = rs -> {
+        List<User> result = new ArrayList<>();
+        Map<Integer, EnumSet<Role>> roles = new HashMap<>();
+        AtomicInteger userIndex = new AtomicInteger();
+        while(rs.next()){
+            Integer userId = rs.getInt("id");
+            roles.computeIfAbsent(userId, (id) -> {
+                try {
+                    result.add(ROW_MAPPER.mapRow(rs, userIndex.getAndIncrement()));
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-                roles.add(Role.valueOf(rs.getString("role")));
-            }
-            setRoles(currentUser, roles);
-            return result;
+                return EnumSet.noneOf(Role.class);
+            });
+            roles.get(userId).add(Role.valueOf(rs.getString("role")));
         }
-
-        private void setRoles(User user, Set<Role> roles){
-            if(user != null){
-                user.setRoles(roles);
-            }
-        }
+        result.forEach(user -> user.setRoles(roles.get(user.getId())));
+        return result;
     };
 
     @Autowired
@@ -101,19 +90,22 @@ public class JdbcUserRepositoryImpl implements UserRepository {
 
     @Override
     public User get(int id) {
-        List<User> users = jdbcTemplate.query("SELECT * FROM users LEFT JOIN user_roles u on users.id = u.user_id WHERE id=?", RSE, id);
+        List<User> users = jdbcTemplate.query("SELECT * FROM users LEFT JOIN user_roles u ON users.id = u.user_id " +
+                "WHERE id=?", userExtractor, id);
         return DataAccessUtils.singleResult(users);
     }
 
     @Override
     public User getByEmail(String email) {
-        List<User> users = jdbcTemplate.query("SELECT * FROM users LEFT JOIN user_roles u on users.id = u.user_id WHERE email=?", RSE, email);
+        List<User> users = jdbcTemplate.query("SELECT * FROM users LEFT JOIN user_roles u ON users.id = u.user_id " +
+                "WHERE email=?", userExtractor, email);
         return DataAccessUtils.singleResult(users);
     }
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.query("SELECT * FROM users LEFT JOIN user_roles u ON users.id = u.user_id ORDER BY name, email", RSE);
+        return jdbcTemplate.query("SELECT * FROM users LEFT JOIN user_roles u ON users.id = u.user_id " +
+                "ORDER BY name, email", userExtractor);
     }
 
     private void saveRoles(User user){

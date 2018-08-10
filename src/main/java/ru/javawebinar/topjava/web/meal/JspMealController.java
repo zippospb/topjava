@@ -14,7 +14,7 @@ import java.time.LocalTime;
 
 @Controller
 @RequestMapping("/meals")
-public class JspMealController extends MealRestController{
+public class JspMealController extends AbstractMealController {
 
     @Autowired
     public JspMealController(MealService service) {
@@ -22,13 +22,13 @@ public class JspMealController extends MealRestController{
     }
 
     @GetMapping("")
-    public String allMeals(Model model){
+    public String all(Model model){
         model.addAttribute("meals", getAll());
         return "meals";
     }
 
     @GetMapping("/filter")
-    public String filteredMeals(
+    public String filter(
             Model model,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             @RequestParam(name = "startDate", required = false) LocalDate startDate,
@@ -55,15 +55,14 @@ public class JspMealController extends MealRestController{
         return "mealForm";
     }
 
-    @PostMapping("/save/{id}")
+    @PostMapping("/save")
     public String save(
-            @ModelAttribute("mealForm") Meal meal,
-            @PathVariable("id") Integer id
+            @ModelAttribute("mealForm") Meal meal
     ){
         if(meal.isNew()){
             create(meal);
         } else {
-            update(meal, id);
+            update(meal, meal.getId());
         }
         return "redirect:/meals";
     }
@@ -71,6 +70,7 @@ public class JspMealController extends MealRestController{
     @GetMapping("/create")
     public String preCreate(Model model){
         model.addAttribute("meal", new Meal(LocalDateTime.now(), "", 10));
+        model.addAttribute("action", "create");
         return "mealForm";
     }
 
