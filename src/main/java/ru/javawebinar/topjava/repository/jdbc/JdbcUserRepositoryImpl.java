@@ -35,12 +35,11 @@ public class JdbcUserRepositoryImpl implements UserRepository {
     private final ResultSetExtractor<List<User>> userExtractor = rs -> {
         List<User> result = new ArrayList<>();
         Map<Integer, EnumSet<Role>> roles = new HashMap<>();
-        AtomicInteger userIndex = new AtomicInteger();
         while(rs.next()){
             Integer userId = rs.getInt("id");
             roles.computeIfAbsent(userId, (id) -> {
                 try {
-                    result.add(ROW_MAPPER.mapRow(rs, userIndex.getAndIncrement()));
+                    result.add(ROW_MAPPER.mapRow(rs, userId));
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -70,13 +69,13 @@ public class JdbcUserRepositoryImpl implements UserRepository {
             Number newKey = insertUser.executeAndReturnKey(parameterSource);
             user.setId(newKey.intValue());
         } else {
-            jdbcTemplate.update("DELETE FROM user_roles WHERE user_id=?", user.getId());
             if(namedParameterJdbcTemplate.update(
                     "UPDATE users SET name=:name, email=:email, password=:password, " +
                             "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay " +
                             "WHERE id=:id", parameterSource) == 0){
                 return null;
             }
+            jdbcTemplate.update("DELETE FROM user_roles WHERE user_id=?", user.getId());
         }
         saveRoles(user);
         return user;
@@ -109,18 +108,19 @@ public class JdbcUserRepositoryImpl implements UserRepository {
     }
 
     private void saveRoles(User user){
-        final Role[] rolesArr = user.getRoles().toArray(new Role[0]);
         jdbcTemplate.batchUpdate("INSERT INTO user_roles (user_id, role) VALUES (?, ?)",
                 new BatchPreparedStatementSetter() {
+                    Iterator<Role> roles = user.getRoles().iterator();
+
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
                         ps.setInt(1, user.getId());
-                        ps.setString(2, rolesArr[i].toString());
+                        ps.setString(2, roles.next().toString());
                     }
 
                     @Override
                     public int getBatchSize() {
-                        return rolesArr.length;
+                        return user.getRoles().size();
                     }
                 });
     }
