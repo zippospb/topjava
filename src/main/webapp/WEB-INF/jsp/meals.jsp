@@ -31,7 +31,7 @@
         <button type="submit"><spring:message code="button.filter"/></button>
     </form>
     <hr/>
-    <a href="meals/create"><spring:message code="meal.add"/></a>
+    <a href="${pageContext.request.contextPath}/meals/create"><spring:message code="meal.add"/></a>
     <hr/>
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
