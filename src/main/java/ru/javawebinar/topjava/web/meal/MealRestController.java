@@ -14,7 +14,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @RestController
-@RequestMapping(MealRestController.REST_URL)
+@RequestMapping(value = MealRestController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 public class MealRestController extends AbstractMealController {
     static final String REST_URL = "/rest/meals";
 
@@ -23,7 +23,7 @@ public class MealRestController extends AbstractMealController {
         return super.getAll();
     }
 
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}")
     public Meal get(@PathVariable int id){
         return super.get(id);
     }
@@ -34,12 +34,12 @@ public class MealRestController extends AbstractMealController {
         super.delete(id);
     }
 
-    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{id}")
     public void update(@RequestBody Meal meal, @PathVariable int id){
         super.update(meal, id);
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Meal> createWithLocation(@RequestBody Meal meal){
         Meal created = super.create(meal);
 
@@ -51,7 +51,7 @@ public class MealRestController extends AbstractMealController {
         return ResponseEntity.created(uriOfNewResources).body(created);
     }
 
-    @GetMapping(value = "/filter", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/filter")
     public List<MealWithExceed> getBetween(
 //            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE, pattern = "yyyy-MM-dd")
             @RequestParam(required = false) LocalDate startDate,

@@ -10,6 +10,7 @@ import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
+import java.time.LocalTime;
 import java.util.Arrays;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -18,6 +19,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.TestUtil.contentJson;
+import static ru.javawebinar.topjava.util.MealsUtil.getFilteredWithExceeded;
+import static ru.javawebinar.topjava.util.MealsUtil.getWithExceeded;
+import static ru.javawebinar.topjava.web.SecurityUtil.authUserCaloriesPerDay;
 import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 
 class MealRestControllerTest extends AbstractControllerTest {
@@ -32,7 +36,7 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(contentJson(MEALS));
+                .andExpect(contentJson(getWithExceeded(MEALS, authUserCaloriesPerDay())));
     }
 
     @Test
@@ -83,8 +87,12 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .param("endTime", "23:59:59"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(contentJson(Arrays.asList(MEAL6, MEAL5)));
-
-
+                .andExpect(contentJson(
+                        getFilteredWithExceeded(
+                                Arrays.asList(MEAL4, MEAL5, MEAL6),
+                                authUserCaloriesPerDay(),
+                                LocalTime.of(11, 0, 0),
+                                LocalTime.of(23, 59, 59)
+                        )));
     }
 }
