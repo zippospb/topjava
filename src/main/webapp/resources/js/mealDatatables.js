@@ -2,6 +2,12 @@ var ajaxUrl = "ajax/profile/meals/";
 var datatableApi;
 var filterData;
 
+function clearFilter(){
+    filterData = undefined;
+    document.getElementById("filterForm").reset();
+    updateTable();
+}
+
 $(function () {
     datatableApi = $("#datatable").DataTable({
         "paging": false,
@@ -36,6 +42,6 @@ $(function () {
 
     $(".filter").click(function () {
         filterData = "filter?" + $("#filterForm").serialize();
-        updateTable()
+        updateTable();
     })
 });
