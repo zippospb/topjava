@@ -79,14 +79,14 @@
             </thead>
             <c:forEach items="${meals}" var="meal">
                 <jsp:useBean id="meal" scope="page" type="ru.javawebinar.topjava.to.MealWithExceed"/>
-                <tr data-mealExceed="${meal.exceed}">
+                <tr data-mealExceed="${meal.exceed}" data-id="${meal.id}">
                     <td>
                             ${fn:formatDateTime(meal.dateTime)}
                     </td>
                     <td>${meal.description}</td>
                     <td>${meal.calories}</td>
                     <td><a href="meals/update?id=${meal.id}"><span class="fa fa-pencil"/></a></td>
-                    <td><a class="delete" id="${meal.id}"><span class="fa fa-remove"></span></a> </td>
+                    <td><a class="delete"><span class="fa fa-remove"></span></a> </td>
                 </tr>
             </c:forEach>
         </table>
