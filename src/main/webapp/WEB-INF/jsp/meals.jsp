@@ -20,7 +20,7 @@
                         <h5><spring:message code="meal.filterHeader"/></h5>
                     </div>
                     <div class="card-body py-0">
-                        <form method="post" action="meals/filter">
+                        <form method="post" id="filterForm" action="meals/filter">
                             <div class="row">
                                 <div class="col-6">
                                     <div class="form-group">
@@ -55,7 +55,7 @@
                     </div>
                     <div class="card-footer">
                         <button class="button btn-danger" onclick="clearFilter()"><spring:message code="common.cancel"/></button>
-                        <button class="button btn-primary" type="submit"><spring:message code="meal.filter"/></button>
+                        <button class="button btn-primary filter" type="submit"><spring:message code="meal.filter"/></button>
                     </div>
                 </div>
             </div>
