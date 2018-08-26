@@ -1,7 +1,6 @@
 var ajaxUrl = "ajax/admin/users/";
 var datatableApi;
 
-// $(document).ready(function () {
 $(function () {
     datatableApi = $("#datatable").DataTable({
         "paging": false,
@@ -40,3 +39,15 @@ $(function () {
     });
     makeEditable();
 });
+
+function enable(chkbox, id) {
+    var enabled = chkbox.is(":checked");
+    $.ajax({
+        type: "POST",
+        url: ajaxUrl + id,
+        data: "enabled=" + enabled,
+        success: function () {
+            chkbox.closest("tr").attr("data-enabled", enabled)
+        }
+    });
+}
