@@ -34,7 +34,7 @@ $(function () {
         "order": [
             [
                 0,
-                "asc"
+                "desc"
             ]
         ]
     });
@@ -45,3 +45,9 @@ $(function () {
         updateTable();
     })
 });
+
+function updateTable() {
+    $.get(ajaxUrl + (filterData || ""), function (data) {
+        datatableApi.clear().rows.add(data).draw();
+    });
+}

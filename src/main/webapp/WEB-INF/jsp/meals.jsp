@@ -41,12 +41,12 @@
                                         <label class="col-form-label" for="startTime">
                                             <spring:message code="meal.startTime"/>:
                                         </label>
-                                        <input class="form-control col-3" type="time" name="startTime" id="startTime"
+                                        <input class="form-control col-5" type="time" name="startTime" id="startTime"
                                                value="${param.startTime}">
                                         <label class="col-form-label" for="endTime">
                                             <spring:message code="meal.endTime"/>:
                                         </label>
-                                        <input class="form-control col-3" type="time" name="endTime" id="endTime"
+                                        <input class="form-control col-5" type="time" name="endTime" id="endTime"
                                                value="${param.endTime}">
                                     </div>
                                 </div>

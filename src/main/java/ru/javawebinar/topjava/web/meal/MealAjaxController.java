@@ -12,11 +12,11 @@ import java.time.LocalTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/ajax/profile/meals")
+@RequestMapping(value = "/ajax/profile/meals", produces = MediaType.APPLICATION_JSON_VALUE)
 public class MealAjaxController extends AbstractMealController {
 
     @Override
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping
     public List<MealWithExceed> getAll(){
         return super.getAll();
     }

@@ -48,6 +48,13 @@ function enable(chkbox, id) {
         data: "enabled=" + enabled,
         success: function () {
             chkbox.closest("tr").attr("data-enabled", enabled)
+            successNoty(enabled ? "Enabled" : "Disabled")
         }
+    });
+}
+
+function updateTable() {
+    $.get(ajaxUrl, function (data) {
+        datatableApi.clear().rows.add(data).draw();
     });
 }

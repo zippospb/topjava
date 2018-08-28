@@ -70,8 +70,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void setEnabled(int id, boolean enabled) {
-        User user = checkNotFoundWithId(repository.get(id), id);
+        User user = get(id);
         user.setEnabled(enabled);
-        repository.save(user);
+        update(user);
     }
 }
