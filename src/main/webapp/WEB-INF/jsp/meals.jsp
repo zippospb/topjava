@@ -79,7 +79,7 @@
                     </td>
                     <td>${meal.description}</td>
                     <td>${meal.calories}</td>
-                    <td><a><span class="fa fa-pencil"></span></a></td>
+                    <td><a onclick="updateRow(${meal.id})"><span class="fa fa-pencil"></span></a></td>
                     <td><a onclick="deleteRow(${meal.id})"><span class="fa fa-remove"></span></a></td>
                 </tr>
             </c:forEach>
@@ -97,6 +97,7 @@
             <div class="modal-body">
                 <form id="detailsForm">
                     <input type="hidden" id="id" name="id">
+                    <%--<input type="hidden" id="exceed" name="exceed" value="false">--%>
 
                     <div class="form-group">
                         <label for="dateTime" class="col-form-label"><spring:message code="meal.dateTime"/></label>
@@ -132,4 +133,9 @@
 </div>
 <jsp:include page="fragments/footer.jsp"/>
 </body>
+<script>
+    var i18n = [];
+    i18n["addTitle"] = '<spring:message code="meal.title"/>';
+    i18n["editTitle"] = '<spring:message code="meal.edit"/>';
+</script>
 </html>
