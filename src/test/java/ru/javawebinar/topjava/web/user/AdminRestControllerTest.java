@@ -53,13 +53,13 @@ class AdminRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testGetUnAuth() throws Exception {
+    void testGetUnAuth() throws Exception {
         mockMvc.perform(get(REST_URL))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    public void testGetForbidden() throws Exception {
+    void testGetForbidden() throws Exception {
         mockMvc.perform(get(REST_URL)
                 .with(userHttpBasic(USER)))
                 .andExpect(status().isForbidden());
