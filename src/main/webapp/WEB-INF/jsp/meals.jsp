@@ -119,7 +119,6 @@
 <jsp:include page="fragments/footer.jsp"/>
 </body>
 <script>
-    var i18n = [];
     i18n["addTitle"] = '<spring:message code="meal.title"/>';
     i18n["editTitle"] = '<spring:message code="meal.edit"/>';
 </script>
