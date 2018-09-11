@@ -2,6 +2,8 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,6 +30,13 @@ import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 public class ExceptionInfoHandler {
     private static Logger log = LoggerFactory.getLogger(ExceptionInfoHandler.class);
 
+    private ReloadableResourceBundleMessageSource messageSource;
+
+    @Autowired
+    public ExceptionInfoHandler(ReloadableResourceBundleMessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
+
     //  http://stackoverflow.com/a/22358422/548473
     @ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
     @ExceptionHandler(NotFoundException.class)
@@ -38,7 +47,11 @@ public class ExceptionInfoHandler {
     @ResponseStatus(value = HttpStatus.CONFLICT)  // 409
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ErrorInfo conflict(HttpServletRequest req, DataIntegrityViolationException e) {
-        return logAndGetErrorInfo(req, e, true, DATA_ERROR);
+        ErrorType errorType = DATA_ERROR;
+        Throwable rootCause = ValidationUtil.getRootCause(e);
+        String msg = messageSource.getMessage("user.emailConflict", null, req.getLocale());
+        log(req, rootCause, false, errorType);
+        return new ErrorInfo(req.getRequestURL(), errorType, msg);
     }
 
     @ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)  // 422
@@ -62,11 +75,15 @@ public class ExceptionInfoHandler {
 //    https://stackoverflow.com/questions/538870/should-private-helper-methods-be-static-if-they-can-be-static
     private static ErrorInfo logAndGetErrorInfo(HttpServletRequest req, Exception e, boolean logException, ErrorType errorType) {
         Throwable rootCause = ValidationUtil.getRootCause(e);
+        log(req, rootCause, logException, errorType);
+        return new ErrorInfo(req.getRequestURL(), errorType, ValidationUtil.getMessage(rootCause));
+    }
+
+    private static void log(HttpServletRequest req, Throwable rootCause, boolean logException, ErrorType errorType){
         if (logException) {
             log.error(errorType + " at request " + req.getRequestURL(), rootCause);
         } else {
             log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause.toString());
         }
-        return new ErrorInfo(req.getRequestURL(), errorType, ValidationUtil.getMessage(rootCause));
     }
 }
