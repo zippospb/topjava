@@ -9,6 +9,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -22,6 +23,8 @@ import ru.javawebinar.topjava.util.exception.IllegalRequestDataException;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 
@@ -31,6 +34,13 @@ public class ExceptionInfoHandler {
     private static Logger log = LoggerFactory.getLogger(ExceptionInfoHandler.class);
 
     private ReloadableResourceBundleMessageSource messageSource;
+
+    private final static Map<String, String> I18N_ERROR_MSG = new HashMap<>();
+
+    static {
+        I18N_ERROR_MSG.put("meals_unique_user_datetime_idx", "meal.dateConflict");
+        I18N_ERROR_MSG.put("users_unique_email_idx", "user.emailConflict");
+    }
 
     @Autowired
     public ExceptionInfoHandler(ReloadableResourceBundleMessageSource messageSource) {
@@ -49,7 +59,13 @@ public class ExceptionInfoHandler {
     public ErrorInfo conflict(HttpServletRequest req, DataIntegrityViolationException e) {
         ErrorType errorType = DATA_ERROR;
         Throwable rootCause = ValidationUtil.getRootCause(e);
-        String msg = messageSource.getMessage("user.emailConflict", null, req.getLocale());
+        String i18Key = I18N_ERROR_MSG.keySet().stream()
+                .filter(rootCause.getMessage() :: contains)
+                .findFirst()
+                .orElse("");
+
+        String msg = i18Key.isEmpty() ? rootCause.getLocalizedMessage() :
+                messageSource.getMessage(I18N_ERROR_MSG.get(i18Key), null, req.getLocale());
         log(req, rootCause, false, errorType);
         return new ErrorInfo(req.getRequestURL(), errorType, msg);
     }
@@ -70,6 +86,14 @@ public class ExceptionInfoHandler {
     @ExceptionHandler(Exception.class)
     public ErrorInfo handleError(HttpServletRequest req, Exception e) {
         return logAndGetErrorInfo(req, e, true, APP_ERROR);
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(BindException.class)
+    public ErrorInfo bindError(HttpServletRequest req, BindException e) {
+        ErrorType errorType = ErrorType.VALIDATION_ERROR;
+        log(req, e, false, errorType);
+        return new ErrorInfo(req.getRequestURL(), errorType, ValidationUtil.getErrorResponse(e.getBindingResult()));
     }
 
 //    https://stackoverflow.com/questions/538870/should-private-helper-methods-be-static-if-they-can-be-static

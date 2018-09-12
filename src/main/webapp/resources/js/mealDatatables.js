@@ -68,6 +68,8 @@ $(function () {
         "initComplete": makeEditable
     });
 
+    $.datetimepicker.setLocale(locale);
+
 //  http://xdsoft.net/jqplugins/datetimepicker/
     const startDate = $('#startDate');
     const endDate = $('#endDate');

@@ -57,7 +57,7 @@ public class ValidationUtil {
         return result;
     }
 
-    public static void getErrorResponse(BindingResult result) {
+    public static String getErrorResponse(BindingResult result) {
         StringJoiner joiner = new StringJoiner("<br>");
         result.getFieldErrors().forEach(
                 fe -> {
@@ -67,7 +67,7 @@ public class ValidationUtil {
                     }
                     joiner.add(msg);
                 });
-        throw new IllegalRequestDataException(joiner.toString());
+        return joiner.toString();
     }
 
     public static String getMessage(Throwable e) {
