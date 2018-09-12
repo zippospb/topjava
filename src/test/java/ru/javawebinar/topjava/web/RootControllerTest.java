@@ -1,8 +1,13 @@
 package ru.javawebinar.topjava.web;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import ru.javawebinar.topjava.to.UserTo;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static ru.javawebinar.topjava.TestUtil.userAuth;
@@ -22,7 +27,7 @@ class RootControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testUnAuth() throws Exception {
+    void testUnAuth() throws Exception {
         mockMvc.perform(get("/users"))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
@@ -36,5 +41,22 @@ class RootControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(view().name("meals"))
                 .andExpect(forwardedUrl("/WEB-INF/jsp/meals.jsp"));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void testRegisterDuplicateEmail() throws Exception {
+        UserTo created = new UserTo(null, "new", "admin@gmail.com", "qwerty", 2000);
+        mockMvc.perform(post("/register")
+                .param("name", created.getName())
+                .param("email", created.getEmail())
+                .param("password", created.getPassword())
+                .param("caloriesPerDay", created.getCaloriesPerDay().toString())
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeHasErrors("userTo"))
+                .andExpect(model().attribute("register", true))
+                .andExpect(forwardedUrl("/WEB-INF/jsp/profile.jsp"));
+
     }
 }

@@ -20,8 +20,7 @@ import java.util.Locale;
 @Controller
 public class RootController extends AbstractUserController {
 
-    final
-    ReloadableResourceBundleMessageSource messageSource;
+    private ReloadableResourceBundleMessageSource messageSource;
 
     @Autowired
     public RootController(ReloadableResourceBundleMessageSource messageSource) {
